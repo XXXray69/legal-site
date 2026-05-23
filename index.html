@@ -1,149 +1,1051 @@
-<?php
-$sent = false;
-$error = '';
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $name = trim($_POST['name'] ?? '');
-    $phone = trim($_POST['phone'] ?? '');
-    $service = trim($_POST['service'] ?? '');
-    $message = trim($_POST['message'] ?? '');
-
-    if ($name === '' || $phone === '') {
-        $error = 'Пожалуйста, укажите имя и телефон.';
-    } else {
-        $line = date('Y-m-d H:i:s') . " | $name | $phone | $service | " . str_replace(["\r", "\n"], ' ', $message) . PHP_EOL;
-        file_put_contents(__DIR__ . '/leads.txt', $line, FILE_APPEND | LOCK_EX);
-        $sent = true;
-    }
-}
-?>
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Юридическая помощь | Адвокат, юрист, защита в суде</title>
-    <meta name="description" content="Юрист и адвокат: уголовный юрист, гражданский юрист, семейные споры, банкротство, ДТП, вред здоровью, судебная экспертиза, защита в суде, полиции и прокуратуре.">
-    <meta name="keywords" content="адвокат, юрист, лучшие юристы, тяжкий вред здоровью, средний вред здоровью, лёгкий вред здоровью, судебная экспертиза, судмедэксперт, судебно-медицинская экспертиза, гражданский юрист, уголовный юрист, юрист по вреду здоровья, банкротство, семейные споры, разводы, алименты, договора, юрист по дтп, представитель потерпевшего, защита прав, правозащита, защита в суде, защита в полиции, защита в прокуратуре, судебные споры, представительство в суде">
-    <link rel="stylesheet" href="assets/style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ПравоЭксперт — адвокат и юрист для сложных судебных споров</title>
+  <meta name="description" content="Адвокат и юрист: уголовный юрист, гражданский юрист, вред здоровью, судебная экспертиза, банкротство, семейные споры, ДТП, представительство в суде, защита в полиции и прокуратуре." />
+  <meta name="keywords" content="адвокат, юрист, лучшие юристы, тяжкий вред здоровью, средний вред здоровью, лёгкий вред здоровью, судебная экспертиза, судмедэксперт, судебно-медицинская экспертиза, гражданский юрист, уголовный юрист, юрист по вреду здоровья, банкротство, семейные споры, разводы, алименты, договора, юрист по дтп, представитель потерпевшего, защита прав, правозащита, защита в суде, защита в полиции, защита в прокуратуре, судебные споры, представительство в суде" />
+  <meta name="theme-color" content="#061323" />
+
+  <meta property="og:title" content="ПравоЭксперт — адвокат и юрист" />
+  <meta property="og:description" content="Защита ваших прав в суде, полиции и прокуратуре. Судебные споры, экспертиза, вред здоровью, ДТП, банкротство, семейные дела." />
+  <meta property="og:type" content="website" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --navy: #061323;
+      --navy-2: #091c31;
+      --navy-3: #102944;
+      --gold: #d7a94b;
+      --gold-2: #f1d38a;
+      --paper: #fbf8f1;
+      --white: #ffffff;
+      --text: #1b2735;
+      --muted: #637083;
+      --line: rgba(255,255,255,.13);
+      --shadow: 0 24px 70px rgba(3, 14, 26, .18);
+      --radius: 22px;
+      --container: 1180px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: Manrope, system-ui, -apple-system, Segoe UI, Arial, sans-serif;
+      color: var(--text);
+      background: #fff;
+      overflow-x: hidden;
+    }
+
+    body.menu-open { overflow: hidden; }
+    a { color: inherit; text-decoration: none; }
+    img { display: block; width: 100%; height: 100%; object-fit: cover; }
+    button, input, textarea { font: inherit; }
+
+    .container {
+      width: min(var(--container), calc(100% - 40px));
+      margin-inline: auto;
+    }
+
+    .eyebrow {
+      color: var(--gold);
+      font-weight: 800;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      font-size: 12px;
+      margin-bottom: 14px;
+    }
+
+    .section-title {
+      font-family: "Playfair Display", Georgia, serif;
+      font-size: clamp(34px, 4vw, 54px);
+      line-height: 1.02;
+      margin: 0;
+      color: var(--navy);
+    }
+
+    .section-title.light { color: var(--white); }
+    .section-lead {
+      margin: 18px 0 0;
+      color: var(--muted);
+      line-height: 1.8;
+      max-width: 760px;
+    }
+
+    .section-lead.light { color: rgba(255,255,255,.74); }
+    .gold-line {
+      width: 72px;
+      height: 3px;
+      background: linear-gradient(90deg, var(--gold), transparent);
+      margin-top: 18px;
+      border-radius: 20px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      border: 0;
+      border-radius: 13px;
+      min-height: 52px;
+      padding: 0 22px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform .25s ease, box-shadow .25s ease, background .25s ease, border-color .25s ease;
+      white-space: nowrap;
+    }
+
+    .btn:hover { transform: translateY(-2px); }
+    .btn-primary {
+      color: #1b1305;
+      background: linear-gradient(135deg, #e3b75f, #f6dc93 48%, #c98e2d);
+      box-shadow: 0 14px 34px rgba(215, 169, 75, .32);
+    }
+    .btn-primary:hover { box-shadow: 0 18px 42px rgba(215, 169, 75, .42); }
+    .btn-secondary {
+      color: var(--white);
+      background: rgba(255,255,255,.05);
+      border: 1px solid rgba(215,169,75,.55);
+    }
+    .btn-secondary:hover { background: rgba(215,169,75,.11); }
+
+    .site-header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 50;
+      background: rgba(6,19,35,.9);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid rgba(255,255,255,.1);
+      transition: padding .25s ease, background .25s ease, box-shadow .25s ease;
+    }
+    .site-header.scrolled { box-shadow: 0 16px 44px rgba(0,0,0,.26); background: rgba(6,19,35,.96); }
+
+    .header-inner {
+      min-height: 86px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      min-width: 230px;
+    }
+
+    .brand-mark {
+      width: 54px;
+      height: 54px;
+      display: grid;
+      place-items: center;
+      border: 1px solid rgba(215,169,75,.55);
+      border-radius: 18px;
+      background: linear-gradient(145deg, rgba(215,169,75,.15), rgba(255,255,255,.03));
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.05);
+    }
+
+    .brand-mark svg { width: 32px; height: 32px; color: var(--gold); }
+    .brand-name {
+      display: block;
+      font-family: "Playfair Display", Georgia, serif;
+      font-size: 25px;
+      line-height: 1;
+      color: var(--white);
+      font-weight: 800;
+    }
+    .brand-subtitle {
+      display: block;
+      margin-top: 5px;
+      color: rgba(255,255,255,.62);
+      font-size: 12px;
+      line-height: 1.2;
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 34px;
+      color: rgba(255,255,255,.82);
+      font-weight: 700;
+    }
+    .nav a { position: relative; transition: color .2s ease; }
+    .nav a::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: -10px;
+      height: 2px;
+      background: var(--gold);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform .25s ease;
+    }
+    .nav a:hover, .nav a.active { color: var(--white); }
+    .nav a:hover::after, .nav a.active::after { transform: scaleX(1); }
+
+    .header-actions { display: flex; align-items: center; gap: 14px; }
+    .menu-btn {
+      display: none;
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.06);
+      color: var(--white);
+      cursor: pointer;
+    }
+    .menu-btn span {
+      display: block;
+      width: 21px;
+      height: 2px;
+      background: currentColor;
+      margin: 5px auto;
+      border-radius: 20px;
+      transition: transform .25s ease, opacity .25s ease;
+    }
+    .menu-open .menu-btn span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .menu-open .menu-btn span:nth-child(2) { opacity: 0; }
+    .menu-open .menu-btn span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    .hero {
+      position: relative;
+      min-height: 760px;
+      padding: 168px 0 82px;
+      color: var(--white);
+      background:
+        radial-gradient(circle at 16% 20%, rgba(215,169,75,.16), transparent 26%),
+        linear-gradient(90deg, rgba(6,19,35,.98) 0%, rgba(6,19,35,.93) 37%, rgba(6,19,35,.55) 62%, rgba(6,19,35,.22) 100%),
+        url("assets/images/hero.jpg") center right / cover no-repeat,
+        linear-gradient(135deg, #061323, #0b2138);
+      overflow: hidden;
+    }
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, transparent 76%, #fff 100%);
+      pointer-events: none;
+    }
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image: linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px);
+      background-size: 58px 58px;
+      mask-image: linear-gradient(90deg, rgba(0,0,0,.45), transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-content { position: relative; z-index: 2; max-width: 680px; }
+    .hero h1 {
+      margin: 0;
+      font-family: "Playfair Display", Georgia, serif;
+      font-size: clamp(46px, 6vw, 82px);
+      line-height: .99;
+      letter-spacing: -.035em;
+      text-shadow: 0 14px 50px rgba(0,0,0,.32);
+    }
+    .hero h1 .accent { color: var(--gold-2); }
+    .hero p {
+      margin: 26px 0 0;
+      max-width: 610px;
+      color: rgba(255,255,255,.78);
+      font-size: 18px;
+      line-height: 1.8;
+    }
+    .hero-cta { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 34px; }
+
+    .hero-panel {
+      position: relative;
+      z-index: 5;
+      margin-top: -54px;
+    }
+    .benefits {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      border: 1px solid rgba(215,169,75,.2);
+      background: linear-gradient(145deg, #061323, #0b2138);
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+    .benefit {
+      min-height: 132px;
+      padding: 28px 26px;
+      display: flex;
+      align-items: flex-start;
+      gap: 18px;
+      border-right: 1px solid rgba(255,255,255,.09);
+      color: var(--white);
+    }
+    .benefit:last-child { border-right: 0; }
+    .icon-box {
+      flex: 0 0 auto;
+      width: 50px;
+      height: 50px;
+      display: grid;
+      place-items: center;
+      color: var(--gold);
+      border-radius: 16px;
+      background: rgba(215,169,75,.1);
+      border: 1px solid rgba(215,169,75,.24);
+    }
+    .icon-box svg { width: 25px; height: 25px; }
+    .benefit h3 { margin: 0 0 7px; font-size: 16px; }
+    .benefit p { margin: 0; color: rgba(255,255,255,.64); line-height: 1.5; font-size: 13px; }
+
+    .section { padding: 100px 0; }
+    .section-head { margin-bottom: 44px; }
+
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 22px;
+    }
+    .service-card {
+      position: relative;
+      overflow: hidden;
+      border-radius: var(--radius);
+      background: var(--white);
+      box-shadow: 0 14px 44px rgba(8, 31, 55, .1);
+      border: 1px solid rgba(9, 28, 49, .08);
+      transition: transform .25s ease, box-shadow .25s ease;
+    }
+    .service-card:hover { transform: translateY(-8px); box-shadow: 0 26px 70px rgba(8, 31, 55, .17); }
+    .service-image {
+      height: 214px;
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(135deg, var(--navy), var(--navy-3));
+    }
+    .service-image::after {
+      content: "";
+      position: absolute;
+      inset: auto 0 0 0;
+      height: 55%;
+      background: linear-gradient(180deg, transparent, rgba(6,19,35,.55));
+    }
+    .service-card:hover img { transform: scale(1.06); }
+    .service-card img { transition: transform .45s ease; }
+    .service-body { padding: 30px 26px 28px; position: relative; }
+    .service-icon {
+      position: absolute;
+      left: 26px;
+      top: -32px;
+      width: 58px;
+      height: 58px;
+      border-radius: 18px;
+      display: grid;
+      place-items: center;
+      color: var(--gold);
+      background: rgba(255,255,255,.96);
+      box-shadow: 0 16px 34px rgba(0,0,0,.13);
+      border: 1px solid rgba(215,169,75,.25);
+    }
+    .service-icon svg { width: 26px; height: 26px; }
+    .service-card h3 {
+      margin: 0 0 12px;
+      font-family: "Playfair Display", Georgia, serif;
+      font-size: 25px;
+      color: var(--navy);
+    }
+    .service-card p { margin: 0; color: var(--muted); line-height: 1.7; }
+
+    .expertise {
+      position: relative;
+      color: var(--white);
+      background: linear-gradient(100deg, rgba(6,19,35,.98) 0%, rgba(6,19,35,.95) 45%, rgba(6,19,35,.42) 100%), url("assets/images/expertise.jpg") center right / cover no-repeat, var(--navy);
+      overflow: hidden;
+    }
+    .expertise::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 16% 20%, rgba(215,169,75,.15), transparent 24%);
+      pointer-events: none;
+    }
+    .expertise-inner { position: relative; z-index: 1; max-width: 720px; }
+    .check-grid {
+      margin-top: 34px;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px 26px;
+    }
+    .check-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: rgba(255,255,255,.86);
+      font-weight: 700;
+    }
+    .check-item svg { width: 19px; height: 19px; color: var(--gold); flex: 0 0 auto; }
+
+    .why-contact {
+      padding: 0;
+      background: var(--navy);
+      color: var(--white);
+    }
+    .split {
+      display: grid;
+      grid-template-columns: .95fr 1.05fr;
+      min-height: 520px;
+    }
+    .why-side {
+      padding: 86px max(40px, calc((100vw - var(--container)) / 2)) 86px 0;
+      margin-left: max(20px, calc((100vw - var(--container)) / 2));
+    }
+    .features {
+      margin-top: 44px;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 26px;
+    }
+    .feature {
+      padding: 22px;
+      border-radius: 20px;
+      background: rgba(255,255,255,.045);
+      border: 1px solid rgba(255,255,255,.1);
+    }
+    .feature svg { width: 34px; height: 34px; color: var(--gold); margin-bottom: 14px; }
+    .feature h3 { margin: 0 0 8px; font-size: 18px; }
+    .feature p { margin: 0; color: rgba(255,255,255,.65); line-height: 1.55; font-size: 14px; }
+
+    .contact-side {
+      position: relative;
+      padding: 86px max(40px, calc((100vw - var(--container)) / 2)) 86px 72px;
+      background:
+        linear-gradient(90deg, rgba(251,248,241,.96), rgba(251,248,241,.84)),
+        url("assets/images/contact.jpg") center right / cover no-repeat,
+        var(--paper);
+      color: var(--text);
+    }
+    .contact-card {
+      max-width: 650px;
+      border-radius: 26px;
+      background: rgba(255,255,255,.82);
+      border: 1px solid rgba(9,28,49,.08);
+      box-shadow: 0 24px 60px rgba(8,31,55,.13);
+      padding: 36px;
+      backdrop-filter: blur(10px);
+    }
+    .contact-card h2 {
+      margin: 0;
+      font-family: "Playfair Display", Georgia, serif;
+      font-size: 38px;
+      color: var(--navy);
+    }
+    .contact-card p { margin: 12px 0 24px; color: var(--muted); line-height: 1.65; }
+    .form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+    .form-field.full { grid-column: 1 / -1; }
+    .form-field input, .form-field textarea {
+      width: 100%;
+      border: 1px solid rgba(9,28,49,.12);
+      background: rgba(255,255,255,.92);
+      color: var(--text);
+      border-radius: 14px;
+      padding: 15px 16px;
+      outline: none;
+      transition: border-color .2s ease, box-shadow .2s ease;
+    }
+    .form-field textarea { min-height: 118px; resize: vertical; }
+    .form-field input:focus, .form-field textarea:focus {
+      border-color: rgba(215,169,75,.72);
+      box-shadow: 0 0 0 4px rgba(215,169,75,.13);
+    }
+    .form-agree {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin: 16px 0 20px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+    .form-agree a { color: #9c6c16; font-weight: 800; }
+    .form-error { display: none; color: #a52a2a; margin: 8px 0 0; font-size: 13px; }
+    .form-field.error .form-error { display: block; }
+    .form-field.error input, .form-field.error textarea { border-color: #c74b4b; }
+
+    .practice {
+      background:
+        radial-gradient(circle at 78% 20%, rgba(215,169,75,.10), transparent 26%),
+        linear-gradient(180deg, #fff, #f7f4ee);
+    }
+    .practice-grid {
+      display: grid;
+      grid-template-columns: .86fr 1.14fr;
+      gap: 38px;
+      align-items: center;
+    }
+    .practice-visual {
+      height: 540px;
+      border-radius: 30px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      position: relative;
+      background: var(--navy);
+    }
+    .practice-visual::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, transparent 50%, rgba(6,19,35,.54));
+    }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-top: 34px;
+    }
+    .stat {
+      border-radius: 20px;
+      padding: 24px;
+      background: #fff;
+      box-shadow: 0 16px 40px rgba(8,31,55,.08);
+      border: 1px solid rgba(9,28,49,.08);
+    }
+    .stat strong {
+      display: block;
+      color: var(--navy);
+      font-family: "Playfair Display", Georgia, serif;
+      font-size: 42px;
+      line-height: 1;
+    }
+    .stat span { color: var(--muted); line-height: 1.45; display: block; margin-top: 8px; }
+
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 28px;
+    }
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: rgba(215,169,75,.12);
+      border: 1px solid rgba(215,169,75,.2);
+      color: #73531a;
+      font-weight: 800;
+      font-size: 13px;
+    }
+
+    .site-footer {
+      background: #04101f;
+      color: rgba(255,255,255,.72);
+      padding: 54px 0 24px;
+    }
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 1.35fr .85fr .85fr 1fr;
+      gap: 36px;
+      padding-bottom: 36px;
+      border-bottom: 1px solid rgba(255,255,255,.1);
+    }
+    .footer-title {
+      margin: 0 0 16px;
+      color: var(--gold);
+      font-weight: 800;
+    }
+    .footer-links { display: grid; gap: 10px; }
+    .footer-links a { color: rgba(255,255,255,.68); transition: color .2s ease; }
+    .footer-links a:hover { color: var(--white); }
+    .footer-contact { display: grid; gap: 12px; }
+    .socials { display: flex; gap: 10px; margin-top: 20px; }
+    .socials a {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: rgba(255,255,255,.07);
+      border: 1px solid rgba(255,255,255,.1);
+      color: var(--white);
+    }
+    .footer-bottom {
+      padding-top: 22px;
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      font-size: 13px;
+      color: rgba(255,255,255,.45);
+    }
+
+    .toast {
+      position: fixed;
+      right: 22px;
+      bottom: 22px;
+      z-index: 100;
+      max-width: 390px;
+      padding: 18px 20px;
+      border-radius: 18px;
+      color: var(--white);
+      background: linear-gradient(135deg, #092039, #123a5e);
+      box-shadow: 0 20px 54px rgba(0,0,0,.28);
+      transform: translateY(22px);
+      opacity: 0;
+      pointer-events: none;
+      transition: .25s ease;
+      border: 1px solid rgba(215,169,75,.25);
+    }
+    .toast.show { transform: translateY(0); opacity: 1; }
+
+    .reveal { opacity: 0; transform: translateY(24px); transition: opacity .7s ease, transform .7s ease; }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    .is-image-missing img { display: none; }
+    .is-image-missing::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 30% 20%, rgba(215,169,75,.35), transparent 30%), linear-gradient(135deg, #061323, #102944);
+    }
+
+    @media (max-width: 1060px) {
+      .header-actions .btn { display: none; }
+      .nav { gap: 22px; }
+      .benefits { grid-template-columns: repeat(2, 1fr); }
+      .benefit:nth-child(2) { border-right: 0; }
+      .benefit:nth-child(1), .benefit:nth-child(2) { border-bottom: 1px solid rgba(255,255,255,.09); }
+      .services-grid { grid-template-columns: repeat(2, 1fr); }
+      .split, .practice-grid { grid-template-columns: 1fr; }
+      .why-side, .contact-side { margin-left: 0; padding: 70px 32px; }
+      .practice-visual { height: 420px; }
+      .footer-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 800px) {
+      .container { width: min(100% - 28px, var(--container)); }
+      .header-inner { min-height: 76px; }
+      .brand-subtitle { display: none; }
+      .brand { min-width: 0; }
+      .brand-mark { width: 46px; height: 46px; border-radius: 15px; }
+      .brand-name { font-size: 22px; }
+      .menu-btn { display: block; }
+      .nav {
+        position: fixed;
+        inset: 76px 12px auto 12px;
+        display: grid;
+        gap: 0;
+        padding: 12px;
+        border-radius: 22px;
+        background: rgba(6,19,35,.98);
+        border: 1px solid rgba(255,255,255,.12);
+        box-shadow: var(--shadow);
+        transform: translateY(-16px);
+        opacity: 0;
+        pointer-events: none;
+        transition: .25s ease;
+      }
+      .menu-open .nav { transform: translateY(0); opacity: 1; pointer-events: auto; }
+      .nav a { padding: 15px; border-radius: 14px; }
+      .nav a:hover { background: rgba(255,255,255,.06); }
+      .nav a::after { display: none; }
+      .hero { min-height: auto; padding: 130px 0 88px; background-position: center; }
+      .hero h1 { font-size: clamp(40px, 12vw, 62px); }
+      .hero p { font-size: 16px; }
+      .hero-panel { margin-top: -38px; }
+      .benefits, .services-grid, .features, .stats, .check-grid, .footer-grid, .form-grid { grid-template-columns: 1fr; }
+      .benefit { border-right: 0; border-bottom: 1px solid rgba(255,255,255,.09); }
+      .benefit:last-child { border-bottom: 0; }
+      .section { padding: 74px 0; }
+      .contact-card { padding: 26px; }
+      .contact-card h2 { font-size: 32px; }
+      .footer-bottom { flex-direction: column; }
+      .hero-cta .btn { width: 100%; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; animation: none !important; }
+      .reveal { opacity: 1; transform: none; }
+    }
+  </style>
+
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "LegalService",
+      "name": "ПравоЭксперт",
+      "description": "Юридическая защита физических и юридических лиц. Адвокат, юрист, судебные споры, судебная экспертиза, вред здоровью, банкротство, семейные споры, ДТП.",
+      "areaServed": "Россия",
+      "telephone": "+7 (495) 120-45-67",
+      "email": "info@pravoexpert.ru",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Москва",
+        "streetAddress": "ул. Тверская, д. 15, офис 305"
+      }
+    }
+  </script>
 </head>
 <body>
-<header class="header">
-    <div class="container nav">
-        <a href="#" class="logo">Право<span>Эксперт</span></a>
-        <button class="burger" id="burger" aria-label="Меню">☰</button>
-        <nav id="menu">
-            <a href="#services">Услуги</a>
-            <a href="#expertise">Экспертиза</a>
-            <a href="#cases">Практика</a>
-            <a href="#contact">Контакты</a>
-        </nav>
-    </div>
-</header>
+  <header class="site-header" id="siteHeader">
+    <div class="container header-inner">
+      <a class="brand" href="#top" aria-label="ПравоЭксперт">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 3v18"/><path d="M5 7h14"/><path d="M6 7l-3 6h6L6 7Z"/><path d="M18 7l-3 6h6l-3-6Z"/><path d="M8 21h8"/><path d="M10 17h4"/>
+          </svg>
+        </span>
+        <span>
+          <span class="brand-name">ПравоЭксперт</span>
+          <span class="brand-subtitle">Юридическая защита<br>физических и юридических лиц</span>
+        </span>
+      </a>
 
-<main>
-    <section class="hero">
-        <div class="container hero-grid">
-            <div class="hero-text">
-                <p class="badge">Юридическая защита физических и юридических лиц</p>
-                <h1>Адвокат и юрист для сложных судебных споров</h1>
-                <p class="lead">Защита прав в суде, полиции и прокуратуре. Помощь по уголовным, гражданским, семейным делам, банкротству, ДТП и делам о вреде здоровью.</p>
-                <div class="hero-actions">
-                    <a class="btn primary" href="#contact">Получить консультацию</a>
-                    <a class="btn ghost" href="#services">Смотреть услуги</a>
-                </div>
-            </div>
-            <div class="hero-card">
-                <h3>Срочная консультация</h3>
-                <p>Разберём документы, оценим перспективы дела и предложим план защиты.</p>
-                <ul>
-                    <li>Представительство в суде</li>
-                    <li>Защита потерпевшего</li>
-                    <li>Судебно-медицинская экспертиза</li>
-                </ul>
-            </div>
+      <nav class="nav" id="mainNav" aria-label="Основная навигация">
+        <a href="#services">Услуги</a>
+        <a href="#expertise">Экспертиза</a>
+        <a href="#practice">Практика</a>
+        <a href="#contacts">Контакты</a>
+      </nav>
+
+      <div class="header-actions">
+        <a class="btn btn-primary" href="#contacts">Консультация</a>
+        <button class="menu-btn" id="menuBtn" aria-label="Открыть меню" aria-controls="mainNav" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main id="top">
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="container hero-content reveal">
+        <div class="eyebrow">Срочная правовая помощь</div>
+        <h1 id="hero-title">Адвокат и юрист<br>для сложных<br><span class="accent">судебных споров</span></h1>
+        <p>Защита ваших прав в суде, полиции и прокуратуре. Помощь по уголовным, гражданским, семейным делам, банкротству, ДТП и делам о вреде здоровью.</p>
+        <div class="hero-cta">
+          <a class="btn btn-primary" href="#contacts">Получить консультацию →</a>
+          <a class="btn btn-secondary" href="#services">Смотреть услуги →</a>
         </div>
+      </div>
+    </section>
+
+    <section class="hero-panel" aria-label="Преимущества">
+      <div class="container benefits reveal">
+        <article class="benefit">
+          <span class="icon-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v18M5 7h14M6 7l-3 6h6L6 7Zm12 0-3 6h6l-3-6Z"/><path d="M8 21h8"/></svg></span>
+          <div><h3>Защита в суде</h3><p>Профессиональная защита ваших интересов в судебных спорах.</p></div>
+        </article>
+        <article class="benefit">
+          <span class="icon-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="m9 12 2 2 4-5"/></svg></span>
+          <div><h3>Защита в полиции</h3><p>Правовая помощь на всех стадиях проверки и разбирательства.</p></div>
+        </article>
+        <article class="benefit">
+          <span class="icon-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></span>
+          <div><h3>Судебная экспертиза</h3><p>Назначение, анализ и сопровождение экспертиз любой сложности.</p></div>
+        </article>
+        <article class="benefit">
+          <span class="icon-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21a8 8 0 0 0-16 0"/><circle cx="12" cy="7" r="4"/></svg></span>
+          <div><h3>Представительство потерпевшего</h3><p>Защита прав и законных интересов потерпевших.</p></div>
+        </article>
+      </div>
     </section>
 
     <section class="section" id="services">
-        <div class="container">
-            <div class="section-title">
-                <p>Направления</p>
-                <h2>Юридические услуги</h2>
-            </div>
-            <div class="cards">
-                <article class="card"><h3>Уголовный юрист</h3><p>Защита в полиции, прокуратуре и суде. Подготовка позиции, жалоб, ходатайств и сопровождение следственных действий.</p></article>
-                <article class="card"><h3>Гражданский юрист</h3><p>Судебные споры, взыскания, договоры, защита прав, представительство в суде и досудебное урегулирование.</p></article>
-                <article class="card"><h3>Вред здоровью</h3><p>Тяжкий, средний и лёгкий вред здоровью. Помощь потерпевшим, компенсация морального вреда, работа с экспертизой.</p></article>
-                <article class="card"><h3>Семейные споры</h3><p>Разводы, алименты, раздел имущества, споры о детях, соглашения и судебное сопровождение.</p></article>
-                <article class="card"><h3>Банкротство</h3><p>Оценка долговой ситуации, подготовка документов, сопровождение процедуры банкротства физических лиц.</p></article>
-                <article class="card"><h3>Юрист по ДТП</h3><p>Взыскание ущерба, споры со страховыми, защита водителя, представитель потерпевшего после ДТП.</p></article>
-            </div>
+      <div class="container">
+        <div class="section-head reveal">
+          <div class="eyebrow">Направления</div>
+          <h2 class="section-title">Юридические услуги</h2>
+          <div class="gold-line"></div>
         </div>
+
+        <div class="services-grid">
+          <article class="service-card reveal">
+            <div class="service-image"><img src="assets/images/criminal.jpg" alt="Уголовный юрист, защита в суде" loading="lazy"></div>
+            <div class="service-body">
+              <span class="service-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/></svg></span>
+              <h3>Уголовный юрист</h3>
+              <p>Защита на всех стадиях уголовного процесса: проверка, следствие, суд и апелляция.</p>
+            </div>
+          </article>
+
+          <article class="service-card reveal">
+            <div class="service-image"><img src="assets/images/civil.jpg" alt="Гражданский юрист, договоры и судебные споры" loading="lazy"></div>
+            <div class="service-body">
+              <span class="service-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/><path d="M8 13h8M8 17h6"/></svg></span>
+              <h3>Гражданский юрист</h3>
+              <p>Судебные споры, взыскания, договоры, защита прав, представительство в суде.</p>
+            </div>
+          </article>
+
+          <article class="service-card reveal">
+            <div class="service-image"><img src="assets/images/health.jpg" alt="Вред здоровью и компенсация" loading="lazy"></div>
+            <div class="service-body">
+              <span class="service-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 1 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8Z"/></svg></span>
+              <h3>Вред здоровью</h3>
+              <p>Тяжкий, средний и лёгкий вред здоровью. Компенсация морального и материального вреда.</p>
+            </div>
+          </article>
+
+          <article class="service-card reveal">
+            <div class="service-image"><img src="assets/images/family.jpg" alt="Семейные споры, разводы и алименты" loading="lazy"></div>
+            <div class="service-body">
+              <span class="service-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M16 21v-2a4 4 0 0 0-8 0v2"/><circle cx="12" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M2 21v-2a4 4 0 0 1 3-3.87"/></svg></span>
+              <h3>Семейные споры</h3>
+              <p>Разводы, алименты, раздел имущества, споры о детях, соглашения и сопровождение.</p>
+            </div>
+          </article>
+
+          <article class="service-card reveal">
+            <div class="service-image"><img src="assets/images/expertise.jpg" alt="Банкротство и анализ документов" loading="lazy"></div>
+            <div class="service-body">
+              <span class="service-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="M7 16v-5M12 16V7M17 16v-8"/></svg></span>
+              <h3>Банкротство</h3>
+              <p>Оценка долговой ситуации, подготовка документов, сопровождение процедуры банкротства.</p>
+            </div>
+          </article>
+
+          <article class="service-card reveal">
+            <div class="service-image"><img src="assets/images/dtp.jpg" alt="Юрист по ДТП" loading="lazy"></div>
+            <div class="service-body">
+              <span class="service-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M19 17h2l-2-5-2-4H7l-2 4-2 5h2"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/><path d="M5 12h14"/></svg></span>
+              <h3>Юрист по ДТП</h3>
+              <p>Споры со страховыми компаниями, взыскание ущерба и компенсация вреда здоровью.</p>
+            </div>
+          </article>
+        </div>
+      </div>
     </section>
 
-    <section class="section dark" id="expertise">
-        <div class="container split">
-            <div>
-                <p class="badge">Экспертное сопровождение</p>
-                <h2>Судебная экспертиза и судмедэксперт</h2>
-                <p>Помогаем правильно поставить вопросы эксперту, оспорить заключение, назначить повторную или дополнительную судебно-медицинскую экспертизу.</p>
-            </div>
-            <div class="steps">
-                <div><span>01</span><p>Анализ материалов дела</p></div>
-                <div><span>02</span><p>Подготовка правовой позиции</p></div>
-                <div><span>03</span><p>Защита интересов в суде</p></div>
-            </div>
+    <section class="section expertise" id="expertise">
+      <div class="container expertise-inner reveal">
+        <div class="eyebrow">Экспертиза и потерпевшие</div>
+        <h2 class="section-title light">Судебная экспертиза<br>и вред здоровью</h2>
+        <div class="gold-line"></div>
+        <p class="section-lead light">Проводим и назначаем экспертизы, работаем с ведущими судмедэкспертами, готовим заключения и процессуальные документы для защиты ваших прав.</p>
+        <div class="check-grid">
+          <div class="check-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m20 6-11 11-5-5"/></svg>Тяжкий вред здоровью</div>
+          <div class="check-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m20 6-11 11-5-5"/></svg>Судмедэксперт</div>
+          <div class="check-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m20 6-11 11-5-5"/></svg>Средний вред здоровью</div>
+          <div class="check-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m20 6-11 11-5-5"/></svg>Судебно-медицинская экспертиза</div>
+          <div class="check-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m20 6-11 11-5-5"/></svg>Лёгкий вред здоровью</div>
+          <div class="check-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m20 6-11 11-5-5"/></svg>Юрист по вреду здоровью</div>
         </div>
+      </div>
     </section>
 
-    <section class="section" id="cases">
-        <div class="container">
-            <div class="section-title">
-                <p>Почему выбирают нас</p>
-                <h2>Сильная правовая защита</h2>
-            </div>
-            <div class="features">
-                <div><strong>24/7</strong><span>первичная связь</span></div>
-                <div><strong>10+</strong><span>направлений практики</span></div>
-                <div><strong>100%</strong><span>конфиденциальность</span></div>
-            </div>
+    <section class="section practice" id="practice">
+      <div class="container practice-grid">
+        <div class="practice-visual reveal"><img src="assets/images/practice.jpg" alt="Юридическая практика и анализ документов" loading="lazy"></div>
+        <div class="reveal">
+          <div class="eyebrow">Практика</div>
+          <h2 class="section-title">Стратегия защиты под ваше дело</h2>
+          <div class="gold-line"></div>
+          <p class="section-lead">Мы анализируем документы, оцениваем перспективы спора, готовим позицию, жалобы, ходатайства и представляем интересы клиента в суде, полиции и прокуратуре.</p>
+          <div class="stats">
+            <div class="stat"><strong>15+</strong><span>лет юридической практики</span></div>
+            <div class="stat"><strong>24/7</strong><span>связь по срочным вопросам</span></div>
+            <div class="stat"><strong>100%</strong><span>конфиденциальность</span></div>
+          </div>
+          <div class="tags" aria-label="Ключевые направления">
+            <span class="tag">защита прав</span><span class="tag">представительство в суде</span><span class="tag">судебные споры</span><span class="tag">договоры</span><span class="tag">разводы</span><span class="tag">алименты</span>
+          </div>
         </div>
+      </div>
     </section>
 
-    <section class="section contact" id="contact">
-        <div class="container contact-grid">
-            <div>
-                <p class="badge">Свяжитесь с нами</p>
-                <h2>Получите юридическую консультацию</h2>
-                <p>Оставьте заявку — юрист свяжется с вами, уточнит ситуацию и предложит дальнейшие действия.</p>
-                <p class="small">Замените телефон, адрес и почту на свои данные в файле index.php.</p>
-            </div>
-            <form method="post" class="form">
-                <?php if ($sent): ?><div class="success">Заявка отправлена. Мы скоро свяжемся с вами.</div><?php endif; ?>
-                <?php if ($error): ?><div class="error"><?= htmlspecialchars($error) ?></div><?php endif; ?>
-                <input type="text" name="name" placeholder="Ваше имя" required>
-                <input type="tel" name="phone" placeholder="Телефон" required>
-                <select name="service">
-                    <option>Уголовный юрист</option>
-                    <option>Гражданский юрист</option>
-                    <option>Юрист по вреду здоровью</option>
-                    <option>Семейные споры</option>
-                    <option>Банкротство</option>
-                    <option>Юрист по ДТП</option>
-                </select>
-                <textarea name="message" rows="4" placeholder="Кратко опишите ситуацию"></textarea>
-                <button class="btn primary" type="submit">Отправить заявку</button>
-            </form>
+    <section class="why-contact" id="contacts">
+      <div class="split">
+        <div class="why-side reveal">
+          <div class="eyebrow">Почему выбирают нас</div>
+          <h2 class="section-title light">Ваше право —<br>наша профессия</h2>
+          <div class="gold-line"></div>
+          <div class="features">
+            <article class="feature"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/></svg><h3>Опыт и практика</h3><p>Работаем со сложными судебными спорами и многоэтапной защитой.</p></article>
+            <article class="feature"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M16 21v-2a4 4 0 0 0-8 0v2"/><circle cx="12" cy="7" r="4"/></svg><h3>Личный подход</h3><p>Строим стратегию под обстоятельства, документы и цели клиента.</p></article>
+            <article class="feature"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4Z"/><path d="M5 6H3v2a4 4 0 0 0 4 4M19 6h2v2a4 4 0 0 1-4 4"/></svg><h3>Результат</h3><p>Готовим сильную процессуальную позицию и сопровождаем каждый шаг.</p></article>
+            <article class="feature"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg><h3>Конфиденциальность</h3><p>Сохраняем адвокатскую тайну и бережно работаем с документами.</p></article>
+          </div>
         </div>
-    </section>
-</main>
 
-<footer class="footer">
-    <div class="container footer-grid">
-        <p>© 2026 ПравоЭксперт. Юридическая помощь.</p>
-        <p>Тел.: +7 (999) 000-00-00 · Email: info@law-site.ru</p>
+        <div class="contact-side reveal">
+          <form class="contact-card" id="leadForm" novalidate>
+            <h2>Получить консультацию</h2>
+            <p>Заполните форму — мы свяжемся с вами и предложим оптимальный план защиты.</p>
+            <div class="form-grid">
+              <label class="form-field">
+                <input type="text" name="name" placeholder="Ваше имя" autocomplete="name" required minlength="2" />
+                <span class="form-error">Введите имя</span>
+              </label>
+              <label class="form-field">
+                <input type="tel" name="phone" placeholder="Телефон" autocomplete="tel" required />
+                <span class="form-error">Введите телефон</span>
+              </label>
+              <label class="form-field full">
+                <input type="email" name="email" placeholder="E-mail" autocomplete="email" />
+                <span class="form-error">Введите корректный e-mail</span>
+              </label>
+              <label class="form-field full">
+                <textarea name="message" placeholder="Опишите вашу ситуацию" required minlength="10"></textarea>
+                <span class="form-error">Опишите ситуацию минимум в 10 символов</span>
+              </label>
+            </div>
+            <label class="form-agree">
+              <input type="checkbox" name="agree" required />
+              <span>Я согласен на обработку <a href="#">персональных данных</a></span>
+            </label>
+            <button class="btn btn-primary" type="submit">Отправить заявку →</button>
+          </form>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <a class="brand" href="#top">
+            <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><path d="M5 7h14"/><path d="M6 7l-3 6h6L6 7Z"/><path d="M18 7l-3 6h6l-3-6Z"/><path d="M8 21h8"/></svg></span>
+            <span><span class="brand-name">ПравоЭксперт</span><span class="brand-subtitle">Юридическая защита<br>физических и юридических лиц</span></span>
+          </a>
+          <div class="socials"><a href="#" aria-label="Telegram">T</a><a href="#" aria-label="VK">VK</a><a href="#" aria-label="WhatsApp">W</a></div>
+        </div>
+        <div><h3 class="footer-title">Услуги</h3><div class="footer-links"><a href="#services">Уголовный юрист</a><a href="#services">Гражданский юрист</a><a href="#services">Вред здоровью</a><a href="#services">Семейные споры</a><a href="#services">Банкротство</a><a href="#services">Юрист по ДТП</a></div></div>
+        <div><h3 class="footer-title">Компания</h3><div class="footer-links"><a href="#expertise">Экспертиза</a><a href="#practice">Практика</a><a href="#contacts">Контакты</a><a href="#top">О компании</a></div></div>
+        <div><h3 class="footer-title">Контакты</h3><div class="footer-contact"><a href="tel:+74951204567">+7 (495) 120-45-67</a><a href="mailto:info@pravoexpert.ru">info@pravoexpert.ru</a><span>г. Москва, ул. Тверская, д. 15, офис 305</span></div></div>
+      </div>
+      <div class="footer-bottom"><span>© 2024 ПравоЭксперт. Все права защищены.</span><span>Политика конфиденциальности · Условия использования</span></div>
     </div>
-</footer>
-<script src="assets/script.js"></script>
+  </footer>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    (() => {
+      const body = document.body;
+      const header = document.getElementById('siteHeader');
+      const menuBtn = document.getElementById('menuBtn');
+      const nav = document.getElementById('mainNav');
+      const toast = document.getElementById('toast');
+      const form = document.getElementById('leadForm');
+
+      const setHeaderState = () => header.classList.toggle('scrolled', window.scrollY > 10);
+      setHeaderState();
+      window.addEventListener('scroll', setHeaderState, { passive: true });
+
+      menuBtn.addEventListener('click', () => {
+        const isOpen = body.classList.toggle('menu-open');
+        menuBtn.setAttribute('aria-expanded', String(isOpen));
+        menuBtn.setAttribute('aria-label', isOpen ? 'Закрыть меню' : 'Открыть меню');
+      });
+
+      nav.addEventListener('click', (event) => {
+        if (event.target.closest('a')) {
+          body.classList.remove('menu-open');
+          menuBtn.setAttribute('aria-expanded', 'false');
+          menuBtn.setAttribute('aria-label', 'Открыть меню');
+        }
+      });
+
+      document.querySelectorAll('a[href^="#"]').forEach((link) => {
+        link.addEventListener('click', (event) => {
+          const id = link.getAttribute('href');
+          if (!id || id === '#') return;
+          const target = document.querySelector(id);
+          if (!target) return;
+          event.preventDefault();
+          const headerOffset = header.offsetHeight + 14;
+          const top = target.getBoundingClientRect().top + window.scrollY - headerOffset;
+          window.scrollTo({ top, behavior: 'smooth' });
+          history.replaceState(null, '', id);
+        });
+      });
+
+      const sections = [...document.querySelectorAll('section[id]')];
+      const navLinks = [...document.querySelectorAll('.nav a')];
+      const activeObserver = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          navLinks.forEach((link) => link.classList.toggle('active', link.getAttribute('href') === '#' + entry.target.id));
+        });
+      }, { rootMargin: '-45% 0px -50% 0px', threshold: 0 });
+      sections.forEach((section) => activeObserver.observe(section));
+
+      const revealObserver = new IntersectionObserver((entries, observer) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          entry.target.classList.add('visible');
+          observer.unobserve(entry.target);
+        });
+      }, { threshold: .12 });
+      document.querySelectorAll('.reveal').forEach((item) => revealObserver.observe(item));
+
+      document.querySelectorAll('img').forEach((img) => {
+        img.addEventListener('error', () => {
+          const parent = img.closest('.service-image, .practice-visual');
+          if (parent) parent.classList.add('is-image-missing');
+        }, { once: true });
+      });
+
+      const showToast = (message) => {
+        toast.textContent = message;
+        toast.classList.add('show');
+        window.clearTimeout(showToast.timer);
+        showToast.timer = window.setTimeout(() => toast.classList.remove('show'), 4600);
+      };
+
+      const validateField = (field) => {
+        const wrap = field.closest('.form-field');
+        if (!wrap) return true;
+        const ok = field.checkValidity();
+        wrap.classList.toggle('error', !ok);
+        return ok;
+      };
+
+      form.querySelectorAll('input, textarea').forEach((field) => {
+        field.addEventListener('input', () => validateField(field));
+        field.addEventListener('blur', () => validateField(field));
+      });
+
+      form.addEventListener('submit', (event) => {
+        event.preventDefault();
+        const fields = [...form.querySelectorAll('input:not([type="checkbox"]), textarea')];
+        const fieldsOk = fields.every(validateField);
+        const agree = form.elements.agree.checked;
+
+        if (!fieldsOk || !agree) {
+          showToast(!agree ? 'Подтвердите согласие на обработку персональных данных.' : 'Проверьте заполнение формы.');
+          return;
+        }
+
+        const data = Object.fromEntries(new FormData(form).entries());
+        const lead = {
+          ...data,
+          createdAt: new Date().toISOString(),
+          page: location.href
+        };
+
+        const saved = JSON.parse(localStorage.getItem('pravoexpert_leads') || '[]');
+        saved.push(lead);
+        localStorage.setItem('pravoexpert_leads', JSON.stringify(saved));
+
+        const subject = encodeURIComponent('Заявка с сайта ПравоЭксперт');
+        const bodyText = encodeURIComponent(`Имя: ${data.name}\nТелефон: ${data.phone}\nE-mail: ${data.email || 'не указан'}\n\nСитуация:\n${data.message}`);
+        window.location.href = `mailto:info@pravoexpert.ru?subject=${subject}&body=${bodyText}`;
+
+        form.reset();
+        showToast('Заявка подготовлена. Откроется почтовая программа для отправки письма.');
+      });
+    })();
+  </script>
 </body>
 </html>
+
